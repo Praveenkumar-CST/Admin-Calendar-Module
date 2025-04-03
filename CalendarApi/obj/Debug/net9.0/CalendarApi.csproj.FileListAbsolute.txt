@@ -500,3 +500,4 @@
 /Users/praveenkumar/Desktop/Final-Admin-main/CalendarApi/obj/Debug/net9.0/CalendarApi.pdb
 /Users/praveenkumar/Desktop/Final-Admin-main/CalendarApi/obj/Debug/net9.0/CalendarApi.genruntimeconfig.cache
 /Users/praveenkumar/Desktop/Final-Admin-main/CalendarApi/obj/Debug/net9.0/ref/CalendarApi.dll
+/Users/praveenkumar/Desktop/Admin/CalendarApi/obj/Debug/net9.0/CalendarApi.sourcelink.json

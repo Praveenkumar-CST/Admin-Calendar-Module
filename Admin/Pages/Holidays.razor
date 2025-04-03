@@ -12,7 +12,8 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Name</th>
+                    <th>Day</th>
+                    <th>Event</th>
                 </tr>
             </thead>
             <tbody>
@@ -20,7 +21,10 @@
                 {
                     <tr>
                         <td>@FormatDate(holiday.Date)</td>
-                        <td>@holiday.Description</td>
+                        <td>@GetDayOfWeek(holiday.Date)</td>
+                        <td class="event-description">
+                            <div class="event-content">@holiday.Description</div>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -33,7 +37,8 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Name</th>
+                    <th>Day</th>
+                    <th>Event</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,7 +46,10 @@
                 {
                     <tr>
                         <td>@FormatDate(holiday.Date)</td>
-                        <td>@holiday.Description</td>
+                        <td>@GetDayOfWeek(holiday.Date)</td>
+                        <td class="event-description">
+                            <div class="event-content">@holiday.Description</div>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -67,7 +75,8 @@ else if (holidays.Length == 0)
 }
 
 <style>
- body {
+/* Existing styles remain unchanged */
+body {
     background-color: #ffffff;
     color: #000000;
     font-family: Arial, sans-serif;
@@ -101,6 +110,7 @@ h4 {
     width: 100%;
     border-collapse: collapse;
     background-color: #f5f5f5;
+    table-layout: fixed; /* Ensure the table maintains a fixed width */
 }
 
 .holiday-table th {
@@ -114,6 +124,20 @@ h4 {
     padding: 10px;
     border-bottom: 1px solid #000000;
     color: #000000;
+    word-wrap: break-word; /* Allow text to wrap within the cell */
+}
+
+.holiday-table .event-description {
+    max-width: 200px; /* Adjust width as needed */
+    white-space: normal; /* Allow text to wrap */
+}
+
+.holiday-table .event-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 5; /* Show only 3 lines of text */
+    -webkit-box-orient: vertical;
 }
 
 .holiday-table tr:nth-child(even) {
@@ -165,7 +189,6 @@ pre {
 .edit-button:hover {
     background-color: #4682b4;
 }
-
 </style>
 
 @code {
@@ -238,7 +261,16 @@ pre {
         {
             return $"{parsedDate.Day:D2}/{parsedDate.Month:D2}/{parsedDate.Year}";
         }
-        return date; // Return original string if parsing fails
+        return date;
+    }
+
+    public string GetDayOfWeek(string date)
+    {
+        if (DateTime.TryParse(date, out DateTime parsedDate))
+        {
+            return parsedDate.ToString("dddd"); // Returns full day name (e.g., "Monday")
+        }
+        return "Invalid Date";
     }
 
     public void Dispose()

@@ -29,7 +29,7 @@
                     <div class="week">
                         @foreach (var day in week)
                         {
-                            <div class="day @(day.IsCurrentMonth ? "" : "other-month") @(day.IsToday ? "today" : "") @(HasEvent(day.Date) ? "has-event" : "")" 
+                            <div class="day @(day.IsCurrentMonth ? "" : "other-month") @(day.IsToday ? "today" : "") @(HasEvent(day.Date) ? "has-event" : "")"
                                  @onclick="() => SelectDate(day.Date)">
                                 <div class="day-number">@day.Date.Day</div>
                                 @if (IsHoliday(day.Date))
@@ -43,10 +43,15 @@
             </div>
         </div>
         <div class="holidays-box" @onclick="NavigateToHolidays"><span>Holidays</span></div>
-        @if (showEventInput)
-        {
-            <div class="event-input">
+    </div>
+    @if (showEventInput)
+    {
+        <div class="event-panel">
+            <div class="event-panel-header">
                 <h4>Events for @selectedDate.ToString("dddd, MMMM d, yyyy")</h4>
+                <button class="close-button" @onclick="CloseEventInput">×</button>
+            </div>
+            <div class="event-panel-content">
                 @if (hasExistingEvent)
                 {
                     <div class="existing-event">
@@ -61,25 +66,21 @@
                 {
                     <div class="error-message">@errorMessage</div>
                 }
-                <textarea @bind="eventText" placeholder="Enter new event details..."></textarea>
+                <textarea @bind="eventText" placeholder="Enter new event details..." class="event-textarea"></textarea>
                 <div class="holiday-type-selection">
                     <label>Holiday Type (required):</label>
-                    <div class="checkbox-container">
-                        <label>
-                            <input type="checkbox" 
-                                   @bind="isPermanentHoliday" 
-                                   disabled="@isOptionalHoliday" />
-                            <span class="checkbox-label">Permanent Holiday</span>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="isPermanentHoliday" disabled="@isOptionalHoliday" />
+                            <span>Permanent Holiday</span>
                             @if (isPermanentHoliday)
                             {
                                 <span class="tick-mark">✓</span>
                             }
                         </label>
-                        <label>
-                            <input type="checkbox" 
-                                   @bind="isOptionalHoliday" 
-                                   disabled="@isPermanentHoliday" />
-                            <span class="checkbox-label">Optional Holiday</span>
+                        <label class="checkbox-label">
+                            <input type="checkbox" @bind="isOptionalHoliday" disabled="@isPermanentHoliday" />
+                            <span>Optional Holiday</span>
                             @if (isOptionalHoliday)
                             {
                                 <span class="tick-mark">✓</span>
@@ -88,19 +89,50 @@
                     </div>
                 </div>
                 <div class="event-buttons">
-                    <button @onclick="SaveEvent">Save</button>
-                    <button @onclick="CloseEventInput">Cancel</button>
                     @if (hasExistingEvent)
                     {
-                        <button @onclick="DeleteEvent">Delete</button>
+                        <button class="action-button save" @onclick="UpdateEvent">Update</button>
+                    }
+                    else
+                    {
+                        <button class="action-button save" @onclick="SaveEvent">Save</button>
+                    }
+                    <button class="action-button cancel" @onclick="CloseEventInput">Cancel</button>
+                    @if (hasExistingEvent)
+                    {
+                        <button class="action-button delete" @onclick="DeleteEvent">Delete</button>
                     }
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>
 
 <style>
+    /* Same styles as provided in the original code */
+    html, body {
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+    }
+    .page-container {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 20px;
+        gap: 20px;
+        background-color: #ffffff;
+    }
+    .calendar-container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        width: 600px;
+    }
     .calendar-header-container {
         display: flex;
         justify-content: space-between;
@@ -120,36 +152,15 @@
     .nav-button:hover {
         background-color: #2980b9;
     }
-    html, body {
-        background-color: #ffffff;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-    }
-    .page-container {
-        background-color: #ffffff;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-    .calendar-container {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        position: relative;
-    }
     .calendar-title {
         color: #1a1a1a;
         text-align: center;
-        margin-bottom: 20px;
+        margin: 0;
         font-family: 'Segoe UI', sans-serif;
+        font-size: 24px;
     }
     .calendar {
-        width: 600px;
+        width: 100%;
         background-color: #2c3e50;
         border-radius: 8px;
         overflow: hidden;
@@ -243,83 +254,108 @@
     .holidays-box span {
         font-weight: 500;
     }
-    .has-event {
-        position: relative;
-    }
-    .has-event::after {
-        content: '';
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        width: 6px;
-        height: 6px;
-        background-color: #e74c3c;
-        border-radius: 50%;
-        display: none;
-    }
-    .event-input {
-        margin-top: 20px;
-        padding: 15px;
+    .event-panel {
+        width: 350px;
         background-color: #ffffff;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 25px;
+        position: sticky;
+        top: 20px;
+        height: fit-content;
     }
-    .event-input h4 {
-        margin: 0 0 10px 0;
-        color: #2c3e50;
-        font-family: 'Segoe UI', sans-serif;
-    }
-    .existing-event {
-        margin-bottom: 10px;
-        padding: 8px;
-        background-color: #e8f4f8;
-        border-radius: 4px;
-        color: #2c3e50;
-    }
-    .success-message {
-        margin-bottom: 10px;
-        padding: 8px;
-        background-color: #d4edda;
-        color: #155724;
-        border-radius: 4px;
-    }
-    .error-message {
-        margin-bottom: 10px;
-        padding: 8px;
-        background-color: #f8d7da;
-        color: #721c24;
-        border-radius: 4px;
-    }
-    .event-input textarea {
-        width: 100%;
-        height: 80px;
-        margin-bottom: 10px;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-family: 'Segoe UI', sans-serif;
-    }
-    .holiday-type-selection {
-        margin: 10px 0;
+    .event-panel-header {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 10px;
+        margin-bottom: 15px;
     }
-    .checkbox-container {
+    .event-panel-header h4 {
+        margin: 0;
+        color: #2c3e50;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 18px;
+    }
+    .close-button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #7f8c8d;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    .close-button:hover {
+        color: #e74c3c;
+    }
+    .event-panel-content {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 15px;
     }
-    .checkbox-container label {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        position: relative;
+    .existing-event {
+        padding: 10px;
+        background-color: #e8f4f8;
+        border-radius: 6px;
         color: #2c3e50;
         font-family: 'Segoe UI', sans-serif;
     }
+    .success-message {
+        padding: 10px;
+        background-color: #d4edda;
+        color: #155724;
+        border-radius: 6px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .error-message {
+        padding: 10px;
+        background-color: #f8d7da;
+        color: #721c24;
+        border-radius: 6px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .event-textarea {
+        width: 100%;
+        height: 120px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-family: 'Segoe UI', sans-serif;
+        resize: none;
+        transition: border-color 0.3s ease;
+    }
+    .event-textarea:focus {
+        border-color: #3498db;
+        outline: none;
+    }
+    .holiday-type-selection {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .holiday-type-selection label {
+        color: #2c3e50;
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: 500;
+    }
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
     .checkbox-label {
-        margin-left: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #2c3e50;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    .checkbox-label span {
+        font-size: 14px;
     }
     .tick-mark {
         color: #28a745;
@@ -331,32 +367,33 @@
         gap: 10px;
         justify-content: flex-end;
     }
-    .event-buttons button {
-        padding: 6px 12px;
+    .action-button {
+        padding: 8px 16px;
         border: none;
-        border-radius: 4px;
-        cursor: pointer;
+        border-radius: 6px;
         font-family: 'Segoe UI', sans-serif;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
     }
-    .event-buttons button:first-child {
+    .action-button.save {
         background-color: #3498db;
         color: white;
     }
-    .event-buttons button:first-child:hover {
+    .action-button.save:hover {
         background-color: #2980b9;
     }
-    .event-buttons button:nth-child(2) {
+    .action-button.cancel {
         background-color: #95a5a6;
         color: white;
     }
-    .event-buttons button:nth-child(2):hover {
+    .action-button.cancel:hover {
         background-color: #7f8c8d;
     }
-    .event-buttons button:nth-child(3) {
+    .action-button.delete {
         background-color: #e74c3c;
         color: white;
     }
-    .event-buttons button:nth-child(3):hover {
+    .action-button.delete:hover {
         background-color: #c0392b;
     }
     .loading-overlay {
@@ -428,6 +465,7 @@
         catch (Exception ex)
         {
             errorMessage = $"Failed to load events: {ex.Message}";
+            StateHasChanged();
             await Task.Delay(3000);
             errorMessage = null;
         }
@@ -439,7 +477,7 @@
         var firstOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
         var firstDayOfWeek = (int)firstOfMonth.DayOfWeek;
         var currentDay = firstOfMonth.AddDays(-firstDayOfWeek);
-        
+
         for (int week = 0; week < 6; week++)
         {
             calendarWeeks.Add(Enumerable.Range(0, 7).Select(d => new CalendarDay
@@ -456,7 +494,7 @@
     {
         selectedDate = date;
         hasExistingEvent = events.ContainsKey(date);
-        
+
         if (hasExistingEvent)
         {
             eventText = events[date].Description ?? "";
@@ -469,10 +507,11 @@
             isPermanentHoliday = false;
             isOptionalHoliday = false;
         }
-        
+
         showEventInput = true;
         successMessage = null;
         errorMessage = null;
+        StateHasChanged();
     }
 
     private async Task SaveEvent()
@@ -504,27 +543,18 @@
                 HolidayType = isPermanentHoliday ? "Permanent" : "Optional"
             };
 
-            HttpResponseMessage response;
-            
-            if (hasExistingEvent)
-            {
-                response = await Http.PutAsJsonAsync($"http://localhost:5085/api/Events/{selectedDate:yyyy-MM-dd}", eventToSave);
-            }
-            else
-            {
-                response = await Http.PostAsJsonAsync("http://localhost:5085/api/Events", eventToSave);
-            }
+            HttpResponseMessage response = await Http.PostAsJsonAsync("http://localhost:5085/api/Events", eventToSave);
 
             if (response.IsSuccessStatusCode)
             {
                 await LoadEvents();
                 GenerateCalendar();
                 successMessage = "Event saved successfully!";
+                hasExistingEvent = true; // Update the button to "Update"
                 StateHasChanged();
 
                 await Task.Delay(3000);
                 successMessage = null;
-                CloseEventInput();
             }
             else
             {
@@ -543,6 +573,64 @@
         }
     }
 
+    private async Task UpdateEvent()
+    {
+        if (string.IsNullOrWhiteSpace(eventText))
+        {
+            errorMessage = "Please enter event details!";
+            StateHasChanged();
+            await Task.Delay(3000);
+            errorMessage = null;
+            return;
+        }
+
+        if (!isPermanentHoliday && !isOptionalHoliday)
+        {
+            errorMessage = "Please select a holiday type (Permanent or Optional)!";
+            StateHasChanged();
+            await Task.Delay(3000);
+            errorMessage = null;
+            return;
+        }
+
+        try
+        {
+            var eventToSave = new Event
+            {
+                Date = selectedDate.ToString("yyyy-MM-dd"),
+                Description = eventText,
+                HolidayType = isPermanentHoliday ? "Permanent" : "Optional"
+            };
+
+            HttpResponseMessage response = await Http.PutAsJsonAsync($"http://localhost:5085/api/Events/{selectedDate:yyyy-MM-dd}", eventToSave);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadEvents();
+                GenerateCalendar();
+                successMessage = "Event updated successfully!";
+                StateHasChanged();
+
+                await Task.Delay(3000);
+                successMessage = null;
+            }
+            else
+            {
+                errorMessage = $"Failed to update event: {await response.Content.ReadAsStringAsync()}";
+                StateHasChanged();
+                await Task.Delay(3000);
+                errorMessage = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error updating event: {ex.Message}";
+            StateHasChanged();
+            await Task.Delay(3000);
+            errorMessage = null;
+        }
+    }
+
     private void CloseEventInput()
     {
         showEventInput = false;
@@ -551,36 +639,50 @@
         isOptionalHoliday = false;
         successMessage = null;
         errorMessage = null;
+        hasExistingEvent = false; // Reset the flag
+        StateHasChanged();
     }
 
     private async Task DeleteEvent()
     {
-        try
+    try
+    {
+        var response = await Http.DeleteAsync($"http://localhost:5085/api/Events/{selectedDate:yyyy-MM-dd}");
+
+        if (response.IsSuccessStatusCode)
         {
-            var response = await Http.DeleteAsync($"http://localhost:5085/api/Events/{selectedDate:yyyy-MM-dd}");
-            
-            if (response.IsSuccessStatusCode)
-            {
-                await LoadEvents();
-                GenerateCalendar();
-                CloseEventInput();
-            }
-            else
-            {
-                errorMessage = $"Failed to delete event: {await response.Content.ReadAsStringAsync()}";
-                StateHasChanged();
-                await Task.Delay(3000);
-                errorMessage = null;
-            }
+            await LoadEvents(); // Refresh events from the server
+            GenerateCalendar(); // Regenerate the calendar to reflect the deletion
+            successMessage = "Event deleted successfully!";
+            hasExistingEvent = false; // Update the flag to reflect no existing event
+
+            // Clear the event text and untick holiday options
+            eventText = "";
+            isPermanentHoliday = false;
+            isOptionalHoliday = false;
+
+            StateHasChanged();
+
+            await Task.Delay(3000);
+            successMessage = null;
         }
-        catch (Exception ex)
+        else
         {
-            errorMessage = $"Error deleting event: {ex.Message}";
+            errorMessage = $"Failed to delete event: {await response.Content.ReadAsStringAsync()}";
             StateHasChanged();
             await Task.Delay(3000);
             errorMessage = null;
         }
     }
+    catch (Exception ex)
+    {
+        errorMessage = $"Error deleting event: {ex.Message}";
+        StateHasChanged();
+        await Task.Delay(3000);
+        errorMessage = null;
+    }
+    }
+
 
     private bool HasEvent(DateTime date) => events.ContainsKey(date);
     private bool IsHoliday(DateTime date) => events.ContainsKey(date);
@@ -590,12 +692,14 @@
     {
         currentDate = currentDate.AddMonths(1);
         GenerateCalendar();
+        StateHasChanged();
     }
 
     private void PreviousMonth()
     {
         currentDate = currentDate.AddMonths(-1);
         GenerateCalendar();
+        StateHasChanged();
     }
 
     private void NavigateToHolidays() => NavigationManager.NavigateTo("/holidays");
