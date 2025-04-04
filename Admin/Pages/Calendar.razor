@@ -71,20 +71,16 @@
                     <label>Holiday Type (required):</label>
                     <div class="checkbox-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" @bind="isPermanentHoliday" disabled="@isOptionalHoliday" />
+                            <input type="checkbox" 
+                                   @bind="isPermanentHoliday" 
+                                   @onclick="() => ToggleHolidayType(true)" />
                             <span>Permanent Holiday</span>
-                            @if (isPermanentHoliday)
-                            {
-                                <span class="tick-mark">✓</span>
-                            }
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" @bind="isOptionalHoliday" disabled="@isPermanentHoliday" />
+                            <input type="checkbox" 
+                                   @bind="isOptionalHoliday" 
+                                   @onclick="() => ToggleHolidayType(false)" />
                             <span>Optional Holiday</span>
-                            @if (isOptionalHoliday)
-                            {
-                                <span class="tick-mark">✓</span>
-                            }
                         </label>
                     </div>
                 </div>
@@ -419,10 +415,6 @@
     @@keyframes spin {
         to { transform: rotate(360deg); }
     }
-    input[type="checkbox"]:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
 </style>
 
 @code {
@@ -550,7 +542,7 @@
                 await LoadEvents();
                 GenerateCalendar();
                 successMessage = "Event saved successfully!";
-                hasExistingEvent = true; // Update the button to "Update"
+                hasExistingEvent = true;
                 StateHasChanged();
 
                 await Task.Delay(3000);
@@ -639,50 +631,61 @@
         isOptionalHoliday = false;
         successMessage = null;
         errorMessage = null;
-        hasExistingEvent = false; // Reset the flag
+        hasExistingEvent = false;
         StateHasChanged();
     }
 
     private async Task DeleteEvent()
     {
-    try
-    {
-        var response = await Http.DeleteAsync($"http://localhost:5085/api/Events/{selectedDate:yyyy-MM-dd}");
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            await LoadEvents(); // Refresh events from the server
-            GenerateCalendar(); // Regenerate the calendar to reflect the deletion
-            successMessage = "Event deleted successfully!";
-            hasExistingEvent = false; // Update the flag to reflect no existing event
+            var response = await Http.DeleteAsync($"http://localhost:5085/api/Events/{selectedDate:yyyy-MM-dd}");
 
-            // Clear the event text and untick holiday options
-            eventText = "";
-            isPermanentHoliday = false;
-            isOptionalHoliday = false;
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadEvents();
+                GenerateCalendar();
+                successMessage = "Event deleted successfully!";
+                hasExistingEvent = false;
+                eventText = "";
+                isPermanentHoliday = false;
+                isOptionalHoliday = false;
+                StateHasChanged();
 
-            StateHasChanged();
-
-            await Task.Delay(3000);
-            successMessage = null;
+                await Task.Delay(3000);
+                successMessage = null;
+            }
+            else
+            {
+                errorMessage = $"Failed to delete event: {await response.Content.ReadAsStringAsync()}";
+                StateHasChanged();
+                await Task.Delay(3000);
+                errorMessage = null;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            errorMessage = $"Failed to delete event: {await response.Content.ReadAsStringAsync()}";
+            errorMessage = $"Error deleting event: {ex.Message}";
             StateHasChanged();
             await Task.Delay(3000);
             errorMessage = null;
         }
     }
-    catch (Exception ex)
-    {
-        errorMessage = $"Error deleting event: {ex.Message}";
-        StateHasChanged();
-        await Task.Delay(3000);
-        errorMessage = null;
-    }
-    }
 
+    private void ToggleHolidayType(bool isPermanent)
+    {
+        if (isPermanent)
+        {
+            isPermanentHoliday = true;
+            isOptionalHoliday = false;
+        }
+        else
+        {
+            isPermanentHoliday = false;
+            isOptionalHoliday = true;
+        }
+        StateHasChanged();
+    }
 
     private bool HasEvent(DateTime date) => events.ContainsKey(date);
     private bool IsHoliday(DateTime date) => events.ContainsKey(date);
