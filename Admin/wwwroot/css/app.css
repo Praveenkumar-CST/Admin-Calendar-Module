@@ -136,7 +136,7 @@ html, body {
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    width: 800px;
+    width: 600px;
 }
 .calendar-header-container {
     display: flex;
@@ -169,7 +169,6 @@ html, body {
     background-color: #2c3e50;
     border-radius: 8px;
     overflow: hidden;
-    height: 560px;
 }
 .calendar-header {
     display: grid;
@@ -188,7 +187,6 @@ html, body {
     display: grid;
     gap: 1px;
     background-color: #34495e;
-    height: 500px;
 }
 .week {
     display: grid;
@@ -269,7 +267,7 @@ html, body {
     padding: 25px;
     position: sticky;
     top: 20px;
-    height: 500px;
+    height: fit-content;
 }
 .event-panel-header {
     display: flex;
@@ -296,6 +294,7 @@ html, body {
 }
 .event-panel-content {
     display: flex;
+    overflow: hidden;
     flex-direction: column;
     gap: 15px;
 }
