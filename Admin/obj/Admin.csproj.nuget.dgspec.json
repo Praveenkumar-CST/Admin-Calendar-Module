@@ -17,14 +17,14 @@
           "/Users/praveenkumar/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -41,28 +41,28 @@
         "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.AspNetCore.Components.WebAssembly": {
               "target": "Package",
-              "version": "[9.0.3, )"
+              "version": "[8.0.4, )"
             },
             "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.3, )"
+              "version": "[8.0.4, )"
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.3, )",
+              "version": "[8.0.15, )",
               "autoReferenced": true
             },
             "Microsoft.NET.Sdk.WebAssembly.Pack": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.3, )",
+              "version": "[9.0.4, )",
               "autoReferenced": true
             }
           },
@@ -79,8 +79,16 @@
           "warn": true,
           "downloadDependencies": [
             {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.15, 8.0.15]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.15, 8.0.15]"
+            },
+            {
               "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
-              "version": "[9.0.3, 9.0.3]"
+              "version": "[8.0.15, 8.0.15]"
             }
           ],
           "frameworkReferences": {
@@ -88,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {

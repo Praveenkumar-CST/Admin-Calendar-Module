@@ -5,6 +5,14 @@
       "PackagePath": "staticwebassets/_framework/blazor.webassembly.js"
     },
     {
+      "Id": "/Users/praveenkumar/Desktop/Admin/Admin/wwwroot/css/Calendar.css",
+      "PackagePath": "staticwebassets/css/Calendar.css"
+    },
+    {
+      "Id": "/Users/praveenkumar/Desktop/Admin/Admin/wwwroot/css/Holidays.css",
+      "PackagePath": "staticwebassets/css/Holidays.css"
+    },
+    {
       "Id": "/Users/praveenkumar/Desktop/Admin/Admin/wwwroot/css/app.css",
       "PackagePath": "staticwebassets/css/app.css"
     },

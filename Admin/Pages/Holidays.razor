@@ -1,7 +1,7 @@
 @page "/holidays"
+@using Holiday.Models
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@using Holiday.Models
 @implements IDisposable
 
 <h3>Holiday List</h3>
@@ -18,10 +18,10 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var holiday in permanentHolidays.OrderByDescending(h => DateTime.Parse(h.Date)))
+                @foreach (var holiday in _permanentHolidays.OrderByDescending(h => DateTime.Parse(h.Date)))
                 {
                     <tr>
-                        <td>@FormatDate(holiday.Date)</td>
+                        <td>@FormatDateString(holiday.Date)</td>
                         <td>@GetDayOfWeek(holiday.Date)</td>
                         <td class="event-description">
                             <div class="event-content">@holiday.Description</div>
@@ -43,10 +43,10 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var holiday in optionalHolidays.OrderByDescending(h => DateTime.Parse(h.Date)))
+                @foreach (var holiday in _optionalHolidays.OrderByDescending(h => DateTime.Parse(h.Date)))
                 {
                     <tr>
-                        <td>@FormatDate(holiday.Date)</td>
+                        <td>@FormatDateString(holiday.Date)</td>
                         <td>@GetDayOfWeek(holiday.Date)</td>
                         <td class="event-description">
                             <div class="event-content">@holiday.Description</div>
@@ -58,109 +58,107 @@
     </div>
 </div>
 
-@if (isLoading)
+@if (_isLoading)
 {
     <p>Loading holidays...</p>
 }
-else if (errorMessage != null)
+else if (_errorMessage != null)
 {
-    <p class="error-message">@errorMessage</p>
+    <p class="error-message">@_errorMessage</p>
     <p>Raw API Response:</p>
-    <pre>@rawResponse</pre>
+    <pre>@_rawResponse</pre>
 }
-else if (holidays.Length == 0)
+else if (_holidays.Length == 0)
 {
     <p>No holidays found for 2025.</p>
     <p>Raw API Response:</p>
-    <pre>@rawResponse</pre>
+    <pre>@_rawResponse</pre>
 }
 
 @code {
-    private Event[] holidays = Array.Empty<Event>();
-    private Event[] permanentHolidays = Array.Empty<Event>();
-    private Event[] optionalHolidays = Array.Empty<Event>();
-    private string? errorMessage;
-    private bool isLoading = true;
-    private string rawResponse = "No response yet.";
-    private System.Timers.Timer? timer;
+    private Event[] _holidays = Array.Empty<Event>();
+    private Event[] _permanentHolidays = Array.Empty<Event>();
+    private Event[] _optionalHolidays = Array.Empty<Event>();
+    private string? _errorMessage;
+    private bool _isLoading = true;
+    private string _rawResponse = "No response yet.";
+    private System.Timers.Timer? _refreshTimer;
 
-    // Lifecycle method to initialize the component and fetch holidays
     protected override async Task OnInitializedAsync()
     {
-        await FetchHolidays();
-        timer = new System.Timers.Timer(5000);
-        timer.Elapsed += async (sender, e) => await RefreshHolidays();
-        timer.AutoReset = true;
-        timer.Start();
+        // Fetch holidays and start periodic refresh on component startup.
+        await FetchHolidaysAsync();
+        using var timer = new System.Timers.Timer(5000);
+        _refreshTimer = timer;
+        _refreshTimer.Elapsed += async (sender, e) => await RefreshHolidaysAsync();
+        _refreshTimer.AutoReset = true;
+        _refreshTimer.Start();
     }
 
-    // Fetches holiday data from the API
-    private async Task FetchHolidays()
+    private async Task FetchHolidaysAsync()
     {
+        // Retrieve holiday data from the API and categorize by type.
         try
         {
-            isLoading = true;
-            string url = "http://localhost:5085/api/Events";
+            _isLoading = true;
+            const string apiUrl = "http://localhost:5085/api/Events";
 
-            var httpResponse = await Http.GetAsync(url);
-            rawResponse = await httpResponse.Content.ReadAsStringAsync();
+            var httpResponse = await Http.GetAsync(apiUrl);
+            _rawResponse = await httpResponse.Content.ReadAsStringAsync();
 
             if (httpResponse.IsSuccessStatusCode)
             {
-                holidays = await httpResponse.Content.ReadFromJsonAsync<Event[]>() ?? Array.Empty<Event>();
-                permanentHolidays = holidays.Where(h => h.HolidayType == "Permanent").ToArray();
-                optionalHolidays = holidays.Where(h => h.HolidayType == "Optional").ToArray();
+                _holidays = await httpResponse.Content.ReadFromJsonAsync<Event[]>() ?? Array.Empty<Event>();
+                _permanentHolidays = _holidays.Where(h => h.HolidayType == "Permanent").ToArray();
+                _optionalHolidays = _holidays.Where(h => h.HolidayType == "Optional").ToArray();
             }
             else
             {
-                errorMessage = $"API request failed with status: {httpResponse.StatusCode}";
+                _errorMessage = $"API request failed with status: {httpResponse.StatusCode}.";
             }
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
-            errorMessage = $"Error fetching holidays: {ex.Message}";
+            _errorMessage = $"Error fetching holidays: {ex.Message}.";
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
             StateHasChanged();
         }
     }
 
-    // Refreshes the holiday data periodically
-    private async Task RefreshHolidays()
+    private async Task RefreshHolidaysAsync()
     {
-        await FetchHolidays();
+        // Periodically refresh holiday data to keep the list updated.
+        await FetchHolidaysAsync();
         await InvokeAsync(StateHasChanged);
     }
 
-    // Formats a date string to "DD/MM/YYYY"
-    public string FormatDate(string date)
+    private string FormatDateString(string date)
     {
-        if (DateTime.TryParse(date, out DateTime parsedDate))
+        if (DateTime.TryParse(date, out var parsedDate))
         {
             return $"{parsedDate.Day:D2}/{parsedDate.Month:D2}/{parsedDate.Year}";
         }
         return date;
     }
 
-    // Returns the day of the week for a given date string
-    public string GetDayOfWeek(string date)
+    private string GetDayOfWeek(string date)
     {
-        if (DateTime.TryParse(date, out DateTime parsedDate))
+        if (DateTime.TryParse(date, out var parsedDate))
         {
-            return parsedDate.ToString("dddd"); // Returns full day name (e.g., "Monday")
+            return parsedDate.ToString("dddd");
         }
         return "Invalid Date";
     }
 
-    // Stops and disposes of the timer when the component is disposed
     public void Dispose()
     {
-        if (timer != null)
+        if (_refreshTimer != null)
         {
-            timer.Stop();
-            timer.Dispose();
+            _refreshTimer.Stop();
+            _refreshTimer.Dispose();
         }
     }
 }

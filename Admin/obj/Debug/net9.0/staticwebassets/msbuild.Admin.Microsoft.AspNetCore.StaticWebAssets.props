@@ -12,11 +12,47 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>05fegafsjt</Fingerprint>
-      <Integrity>3FNZqyEGrtyCebOE/t5Ww3/tbe35o0eIh6OUKGMxiXY=</Integrity>
+      <Fingerprint>5je6eh6tod</Fingerprint>
+      <Integrity>7x6Mv7GMCALyg62GuEzMgsG/xcBHHf+IqZV9n3qfT1Q=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\app.css'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\Calendar.css'))">
+      <SourceType>Package</SourceType>
+      <SourceId>Admin</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>/</BasePath>
+      <RelativePath>css/Calendar.css</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>dkoif3phpf</Fingerprint>
+      <Integrity>I4iiTfSWvziSjScuJ1e089eAexwUeNj9hmBYwaaX8Qk=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\Calendar.css'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\Holidays.css'))">
+      <SourceType>Package</SourceType>
+      <SourceId>Admin</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>/</BasePath>
+      <RelativePath>css/Holidays.css</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>ewzb914w9g</Fingerprint>
+      <Integrity>fhenxUTJjTJDLSmo6NBQYCuUGVzQXQljVnv6IMkltHc=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\Holidays.css'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\favicon.png'))">
       <SourceType>Package</SourceType>
@@ -66,8 +102,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>llocndg9f7</Fingerprint>
-      <Integrity>iRLNBzenQwhBCFO3S4n08aAi4glUZoYYBXHYRNc6X2c=</Integrity>
+      <Fingerprint>rflkxzhrbw</Fingerprint>
+      <Integrity>h6YMOSubxD9VQrLgq0szEW2xxhn0VIWq0TYieRTh9yc=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\index.html'))</OriginalItemSpec>
